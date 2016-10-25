@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+        <style>
+            .ui-tabs .ui-tabs-nav li a
+            {
+                width: 117.3px; height: 15px;
+                text-align: center;
+            }
+        </style>
+    </h:head>
+    <h:body style="font-size: x-small;margin: 2px;margin-left: 5px; background-color: darkgray;" >
+        <h:form id="form">
+            <p:growl id="msg" />
+            <div id="content">                    
+                <div id="orta" style="width: 960px; margin-left: auto; margin-right: auto; float: right;"> 
+                    <p style="font-size: 50px; margin-left: auto; margin-right: auto; margin-top: 100px;" ><b>Servis Takip Sistemi</b></p>
+                    <p:panel style="margin-left: 50px; margin-right: 50px;margin-top: 5px; margin-bottom: 370px; width: 320px; height: 180px;">
+                        <p:tabView style="height: 160px;">
+                            <p:tab title="Personel Sorgulama" >
+                                <h:panelGroup id="sorgulaGrid" layout="block">
+                                    <h:panelGrid columns="1" cellpadding="3" cellspacing="3"  style="width: 255px; margin-left: auto; margin-right: auto;">
+                                        <h:outputText value="Personel Bilgi Sorgulama"  style="width: 150px; margin-left: 50px; " />
+                                        <p:inputText value="#{loginBean.personelTc}" placeholder="TC NO"  style="width: 200px;margin-left: 20px;"/>
+
+                                        <p:commandButton id="sorgulaButon" value="Sorgula" actionListener="#{loginBean.personelSorgula()}" update=":formBilgi" oncomplete="PF('personelBilgi').show()" style="width: 160px;margin-left: 40px;"/>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <p:defaultCommand target="sorgulaButon" scope="sorgulaGrid"/>
+                            </p:tab>
+                            <p:tab title="Şirket Üye Girişi">
+                                <h:panelGroup id="girisGrid" layout="block" >
+                                    <h:panelGrid  columns="1" style="width: 255px;" cellpadding="3" cellspacing="3">
+                                        <p:inputText value="#{loginBean.sirketNo}" placeholder="Şirket No" style="width: 200px;margin-left: 20px;"/>
+                                        <p:password value="#{loginBean.parola}" placeholder="Parola" style="width: 200px;margin-left: 20px;"/>
+                                        <p:commandButton id="girisButon" value="Giriş" action="#{loginBean.login}" update=":form:msg" style="width: 160px;margin-left: 45px;"/>
+                                    </h:panelGrid>
+                                    <p:commandLink value="Üyelik"  oncomplete="PF('uyeOl').show()" style="margin-left: 45px;" />
+                                    <p:commandLink value="Şifremi Unuttum" process="girisGrid" style="margin-left: 20px;" />
+                                </h:panelGroup>
+                                <p:defaultCommand target="girisButon" scope="girisGrid"/>
+                            </p:tab>
+                        </p:tabView>
+                    </p:panel>                    
+                </div>                
+            </div>            
+        </h:form>
+
+        <h:form id="formDialogs">
+            <p:dialog widgetVar="uyeOl" id="uyeOl" header="Üye OL" modal="true" resizable="false" width="310" height="360" >
+                <h:panelGroup id="uyeOlma" >
+                    <p:messages id="messages" showDetail="true" autoUpdate="true" />
+                    <h:panelGrid columns="2" >
+                        <h:outputText value="ŞİRKET NO :" style="margin-top: 5px;"  />
+                        <p:inputText placeholder="Şirket No" />
+
+                        <h:outputText value="ŞİRKET ADI :" style="margin-top: 5px;" />
+                        <p:inputText value="#{loginBean.sirketAdi}" placeholder="Şirket Adı" />
+
+                        <h:outputText value="E-POSTA:" style="margin-top: 5px;"  />
+                        <p:inputText id="parola1" value="#{loginBean.sirketMail}"  placeholder="E-Posta" />
+
+                        <h:outputText value="PAROLA :" style="margin-top: 5px;"  />
+                        <p:password id="parola2"  placeholder="Parola" />
+
+                        <h:outputText value="PAROLA(Tekrar) :" style="margin-top: 5px;"  />
+                        <p:password  placeholder="Parola" required="true"/>
+
+                        <h:outputText value="TELEFON :" style="margin-top: 5px;"  />
+                        <p:inputText placeholder="Telefon No" />
+                    </h:panelGrid>
+                </h:panelGroup>
+                <p:commandButton id="kaydetButon" value="Üyelik Talep" action="index" style="width: 165px; margin-left: 110px; margin-top: 10px;" />
+                <p:defaultCommand target="kaydetButon" scope="uyeOlma" />
+            </p:dialog>          
+
+
+        </h:form>
+        <h:form id="formBilgi" >
+            <p:dialog widgetVar="personelBilgi" id="personelBilgi" modal="true" resizable="false" width="300" height="360" >
+                <p:outputPanel id="personelBilgileri" >
+                    <p:panelGrid columns="2" style="margin-top: 20px; margin-left: 20px;">
+                        <h:outputText value="TC Kimlik No :" />
+                        <h:outputText value="#{loginBean.personelTc}" />
+
+                        <h:outputText value="ADI :" />
+                        <h:outputText value="#{loginBean.personelAdi}" />
+
+                        <h:outputText value="SOYADI :" />
+                        <h:outputText value="#{loginBean.personelSoyadi}" />
+
+                        <h:outputText value="TELEFON :" />
+                        <h:outputText value="#{loginBean.personelTelefon}" />
+
+                        <h:outputText value="E-POSTA :" />
+                        <h:outputText value="#{loginBean.personelMail}" />
+
+                        <h:outputText value="CİNSİYET :" />
+                        <h:outputText value="#{loginBean.cinsiyet}" />
+
+                        <h:outputText value="ARAÇ NO :" />
+                        <h:outputText value="5" />
+
+                        <h:outputText value="DURAK :" />
+                        <h:outputText value="10" />
+
+                        <h:outputText value="BAŞLAMA TARİHİ :" />
+                        <h:outputText value="15.6.2015" />
+
+                        <h:outputText value="BİTİŞ TARİHİ :" />
+                        <h:outputText value="" />
+                    </p:panelGrid>
+                    <br/><br/>
+                    <p:commandButton value="TAMAM" style=" width: 100px; margin-left: 90px;" onclick="PF('personelBilgi').hide();" />
+                </p:outputPanel>
+            </p:dialog> 
+        </h:form>
+    </h:body>
+</html>
+
+

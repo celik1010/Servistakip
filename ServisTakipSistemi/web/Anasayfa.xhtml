@@ -1,0 +1,698 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+        <script src="http://maps.google.com/maps/api/js?sensor=false" 
+                type="text/javascript">
+        </script>
+        <script type="text/javascript">
+            PrimeFaces.locales['tr'] = {
+                closeText: 'kapat',
+                prevText: 'geri',
+                nextText: 'ileri',
+                currentText: 'bugün',
+                monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+                    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+                monthNamesShort: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
+                    'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+                dayNames: ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
+                dayNamesShort: ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'],
+                dayNamesMin: ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'],
+                weekHeader: 'Hf',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                month: 'Ay',
+                week: 'Hafta',
+                day: 'Gün',
+                allDayText: 'Tüm Gün'
+            };
+
+        </script>
+        <script type="text/javascript">
+            var currentMarker = null;
+
+            function handlePointClick(event) {
+                if (currentMarker === null) {
+                    document.getElementById('lat').value = event.latLng.lat();
+                    document.getElementById('lng').value = event.latLng.lng();
+                    currentMarker = new google.maps.Marker({
+                        position: new google.maps.LatLng(event.latLng.lat(), event.latLng.lng())
+                    });
+                    PF('map').addOverlay(currentMarker);
+                    PF('dlg').show();
+                }
+
+            }
+            function markerAddComplete() {
+                currentMarker = null;
+                PF('dlg').hide();
+            }
+            function cancel() {
+                PF('dlg').hide();
+                currentMarker.setMap(null);
+                currentMarker = null;
+                return false;
+            }
+            function personelEkleme() {
+                PF('personelDuraklari').hide();
+                PF('personelEkleDialog').show();
+            }
+        </script>          
+        <style>
+            .ui-tabs .ui-tabs-nav li a
+            {
+                width: 120px; text-align: center;
+            }       
+            .ui-wizard-step-title .ui-state-default .ui-corner-all
+            {
+                width: 120px;
+            }
+        </style>
+
+    </h:head>
+    <h:body  style="font-size: x-small;margin: 0px; width: 100%; height: 100%;" >
+        <h:form id="form">
+            <div id="content" style=" background-color: gainsboro;">
+                <div id="orta" style="width: 1020px; height:667px;  margin-left: auto; margin-right: auto;" >
+                    <p:panel id="panelContent" style="height: 661px;">                        
+                        <f:facet name="header" >
+                            <p:commandButton id="secenekler" icon="ui-icon-gear" style="float: right; width: 23px; height: 23px;" />
+                            <h:outputText value="#{personelBean.sirketAdi}" style="margin-top: 5px; margin-right: 10px; float:right;" />
+                            <p:graphicImage value="" width="25" height="25" style="float: right; margin-right: 5px;" />
+                            <p:menu overlay="true" trigger="secenekler" my="right top" at="right bottom" style="width: 100px;">
+                                <p:submenu label="Seçenekler" >
+                                    <p:menuitem value="Çıkış" action="#{loginBean.logout()}" ajax="false" icon="fa fa-close"/>
+                                   
+                                </p:submenu>
+                            </p:menu>
+                        </f:facet> 
+
+                        <p:tabView id="tabView" style="width:990px;" >
+                            <!--*********PERSONEL TAB**********-->
+                            <p:tab title="Personel">
+                                <h:panelGrid id="personelGrid" columns="1" >
+                                    <p:fieldset  legend="Şirket Bilgileri" toggleable="true"   style="width: 940px;">
+                                        <h:panelGrid columns="2" cellpadding="10"  >
+                                            <p:graphicImage value=""  width="200" height="150" />
+                                            <h:panelGrid columns="2" cellpadding="5" style="margin-left: 20px;" >
+                                                <h:outputText value="Şirket No :" />
+                                                <h:outputText value="#{personelBean.sirketNo}" />
+                                                <h:outputText value="Şirket Adı :" />
+                                                <h:outputText value="#{personelBean.sirketAdi}" />
+                                                <h:outputText value="E-Posta :" />
+                                                <h:outputText value="#{personelBean.sirketMail}" />
+                                                <h:outputText value="Telefon :" />
+                                                <h:outputText value="#{personelBean.sirketTel}" />
+                                            </h:panelGrid>
+                                        </h:panelGrid>
+                                    </p:fieldset>                                  
+                                    <p:panel id="personelPanel" >
+                                        <f:facet name="header" >
+                                            <h:outputText value="Personel Listesi" style="float: left;  font-size: small;" />
+                                            <p:commandButton value="Sil" actionListener="#{personelBean.personelSil}" update=":form:tabView:personelPanel" style="margin-left: 5px; width: 150px;float: right;" />
+                                            <p:commandButton value="Düzenle" oncomplete="PF('personelEkleDialog').show()" actionListener="#{seferBean.butonDurumDuzenleDegistir()}" update=":personelEkle"  style="margin-left: 5px; width: 150px;float: right;" />
+                                            <p:inputText value="#{personelBean.personelTc}" placeholder="TC No" style="width: 150px; margin-left: 5px; float: right;" />
+                                            <p:commandButton value="Personel Ekle" oncomplete="PF('personelEkleDialog').show()" actionListener="#{seferBean.butonDurumEkleDegistir()}" update=":personelEkle" style="margin-left: 5px; width: 150px;float: right;">
+                                                <f:actionListener binding="#{personelBean.setDegerler()}" />
+                                            </p:commandButton>
+                                        </f:facet>
+                                        <p:dataTable id="personelListe" var="personel" value="#{personelBean.liste}" selectionMode="single"
+                                                     rowKey="#{personel.personelTc}" >
+                                            <p:ajax event="rowSelect" listener="#{personelBean.dataTableSecimi}" update=":form:tabView:personelPanel" />
+                                            <p:column headerText="TC NO">
+                                                <h:outputText value="#{personel.personelTc}" />
+                                            </p:column>
+                                            <p:column headerText="ADI">
+                                                <h:outputText value="#{personel.personelAd}" />
+                                            </p:column>
+                                            <p:column headerText="SOYADI">
+                                                <h:outputText value="#{personel.personelSoyad}" />
+                                            </p:column>
+                                            <p:column headerText="TELEFON">
+                                                <h:outputText value="#{personel.telefon}" />
+                                            </p:column>
+                                            <p:column headerText="E-POSTA">
+                                                <h:outputText value="#{personel.EPosta}" />
+                                            </p:column>
+                                            <p:column headerText="CİNSİYET">
+                                                <h:outputText value="#{personel.cinsiyet}" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:panel> 
+                                </h:panelGrid>
+                            </p:tab>
+                            <!--ARAÇ TAB -->
+                            <p:tab id="arac" title="Araç" >
+                                <p:fieldset id="aracFiltre" legend="Araç Filtreleme" style="width: 940px;">
+                                    <h:panelGrid columns="4" cellpadding="3" cellspacing="3" >  
+                                        <p:panel header="Araç Durumu" style="height: 92px; width: 260px;" >
+                                            <p:selectOneRadio value="#{aracBean.filtreDurum}" layout="grid" columns="2" >
+                                                <f:selectItem itemValue="1" itemLabel="Şirkette kullanılan (Aktif) araçlar."  />
+                                                <f:selectItem itemValue="0" itemLabel="Şirkette kullanılmayan (Pasif) araçlar" />
+                                                <p:ajax event="change" update=":form:tabView:aracPanel" listener="#{aracBean.araclist()}" />
+                                            </p:selectOneRadio>
+                                        </p:panel>
+                                        <p:panel header="Sınıfı" style="height: 92px; width: 200px;">
+                                            <p:selectOneRadio value="#{aracBean.filtreSinif}" layout="grid" columns="2" style="width: 150px;">                                                
+                                                <f:selectItem itemValue="0" itemLabel="Hepsi" />
+                                                <f:selectItem itemValue="1" itemLabel="1.Sınıf" />
+                                                <f:selectItem itemValue="2" itemLabel="2.Sınıf" />
+                                                <f:selectItem itemValue="3" itemLabel="3.Sınıf" />
+                                                <p:ajax event="change" update=":form:tabView:aracPanel" listener="#{aracBean.araclist()}" />
+                                            </p:selectOneRadio>
+                                        </p:panel>
+                                        <p:panel header="Marka" style="height: 92px;">
+                                            <h:panelGrid columns="2">
+                                                <h:outputText value="Marka :" style="width: 70px;"/>
+                                                <p:selectOneMenu value="#{aracBean.filtreMarka}" style="width: 120px;">
+                                                    <f:selectItem itemValue="0" itemLabel="Tümü" />
+                                                    <f:selectItems value="#{aracBean.markaList}"/>
+                                                    <p:ajax event="change" update=":form:tabView:aracPanel" listener="#{aracBean.araclist()}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+                                        </p:panel>
+                                        <p:panel header="Kapasite" style="height: 92px;">
+                                            <h:panelGrid columns="2">
+                                                <h:outputText value="Kapasite :" />
+                                                <p:selectOneMenu value="#{aracBean.filtreKapasite}" style="width: 120px;">
+                                                    <f:selectItem itemValue="0" itemLabel="Tümü"/> 
+                                                    <f:selectItems value="#{aracBean.kapasiteList}" />
+                                                    <p:ajax event="change" update=":form:tabView:aracPanel" listener="#{aracBean.araclist()}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+                                        </p:panel>
+                                    </h:panelGrid>                                     
+                                </p:fieldset>
+                                <p:panel id="aracPanel" >
+                                    <p:contextMenu for="aracListe">
+                                        <p:menuitem value="Kişiler" />
+                                        <p:menuitem value="Duraklar" />
+                                    </p:contextMenu>
+                                    <f:facet name="header" >
+                                        <h:outputText value="Araç Listesi" style="float: left;  font-size: small;" />
+                                        <p:commandButton value="Araç Sil" actionListener="#{aracBean.aracSil()}" update=":form:tabView:aracPanel" style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:commandButton value="Araç Düzenle" oncomplete="PF('aracEkleDialog').show()" actionListener="#{seferBean.butonDurumDuzenleDegistir()}" update=":aracEkle" style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:inputText value="#{aracBean.aracNo}" placeholder="Araç No" style="width: 150px; margin-left: 5px; float: right;" />
+                                        <p:commandButton value="Araç Ekle" oncomplete="PF('aracEkleDialog').show()" actionListener="#{seferBean.butonDurumEkleDegistir()}" style="margin-left: 5px; width: 150px;float: right;">
+                                       
+                                        </p:commandButton>
+                                    </f:facet>
+                                    <p:dataTable id="aracListe" var="arac" value="#{aracBean.aracListesi}" selectionMode="single" rowKey="#{arac.aracNo}"  >
+                                        <p:ajax event="rowSelect" listener="#{aracBean.dataTableSecimi}" update=":form:tabView:aracPanel"/>
+                                        <p:column headerText="ARAÇ NO">
+                                            <h:outputText value="#{arac.aracNo}" />
+                                        </p:column>
+                                        <p:column headerText="PLAKA">
+                                            <h:outputText value="#{arac.plaka}" />
+                                        </p:column>
+                                        <p:column headerText="MARKA">
+                                            <h:outputText value="#{arac.marka}" />
+                                        </p:column>
+                                        <p:column headerText="MODEL">
+                                            <h:outputText value="#{arac.model}" />
+                                        </p:column>
+                                        <p:column headerText="KAPASİTE">
+                                            <h:outputText value="#{arac.kapasite}" />
+                                        </p:column>
+                                        <p:column headerText="SINIF">
+                                            <h:outputText value="#{arac.sinif}" />
+                                        </p:column>                                   
+                                    </p:dataTable>
+                                </p:panel> 
+                            </p:tab>
+
+                            <!--DURAK TAB -->
+                            <p:tab id="durak" title="Durak">
+                                <p:panel id="durakPanel" >  
+                                    <p:contextMenu for="durakListe">
+                                        <p:menuitem value="Haritada Göster" actionListener="#{durakBean.haritadaGoster()}" update=":durakGoster:gmapDurakGoster" oncomplete="PF('durakGoster').show()"/>
+                                    </p:contextMenu>
+                                    <f:facet name="header" >
+                                        <h:outputText value="Durak Listesi" style="float: left;  font-size: small;" />
+                                        <p:commandButton value="Durak Sil" actionListener="#{durakBean.durakSil()}" update=":form:tabView:durakPanel" style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:commandButton value="Durak Düzenle" oncomplete="PF('durakEkleDialog').show()" actionListener="#{aracBean.aracDuzenle()}" update=":durakEkle" style="margin-left: 5px; width: 150px;float: right;" >
+                                            <f:actionListener binding="#{seferBean.butonDurumDuzenleDegistir()}" />
+                                        </p:commandButton>
+                                        <p:inputText value="#{durakBean.durakNo}" placeholder="Durak No" style="width: 150px; margin-left: 5px; float: right;" />
+                                        <p:commandButton value="Durak Ekle" oncomplete="PF('durakEkleDialog').show()" actionListener="#{seferBean.butonDurumEkleDegistir()}" update=":durakEkle"  style="margin-left: 5px; width: 150px;float: right;">
+                                            <f:actionListener binding="#{durakBean.setDegerLer()}"  />
+                                        </p:commandButton>
+                                    </f:facet>
+                                    <p:dataTable id="durakListe" var="durak" value="#{durakBean.durakListesi}" selectionMode="single" rowKey="#{durak.durakNo}" widgetVar="durak"  >
+                                        <p:ajax event="rowSelect" listener="#{durakBean.dataTableSecimi}" update=":form:tabView:durakPanel" />
+                                        <p:column headerText="DURAK NO">
+                                            <h:outputText value="#{durak.durakNo}" />
+                                        </p:column>
+
+                                        <p:column headerText="DURAK ADI">
+                                            <h:outputText value="#{durak.durakAd}" />
+                                        </p:column>
+                                        <p:column headerText="AÇIKLAMA">
+                                            <h:outputText value="#{durak.aciklama}" />
+                                        </p:column>                                                                     
+                                    </p:dataTable>
+                                </p:panel> 
+                            </p:tab>
+                            <!--***********GÜZERGAH *************-->
+                            <p:tab id="guzergah" title="Güzergah">
+                                <p:panel id="guzergahPanel">  
+                                    <p:contextMenu for="guzergahListe">
+                                        <p:menuitem value="Haritada Göster" actionListener="#{guzergahBean.guzergahGoster()}" update=":guzergahGoster:guzergahHarita" oncomplete="PF('guzergahGoster').show();"  />
+                                    </p:contextMenu>
+                                    <f:facet name="header" >
+                                        <h:outputText value="Güzergah Listesi" style="float: left;  font-size: small;" />
+                                        <p:commandButton value="Güzergah Sil"  style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:commandButton value="Güzergah Düzenle" style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:inputText id="guzergahNo" value="#{guzergahBean.guzergahNo}" placeholder="Güzergah No" style="width: 150px; margin-left: 5px; float: right;" />
+                                        <p:commandButton value="Güzergah Ekle" actionListener="#{guzergahBean.durakNoktalariYukle()}"  oncomplete="PF('guzergahEkleDialog').show()"  style="margin-left: 5px; width: 150px;float: right;">
+                                            <f:actionListener binding="#{seferBean.butonDurumEkleDegistir()}" />
+                                        </p:commandButton>
+                                    </f:facet>
+                                    <p:dataTable id="guzergahListe" var="guzergah" value="#{guzergahBean.guzergahList}" selectionMode="single" rowKey="#{guzergah.guzergahNo}" widgetVar="guzergah">
+                                        <p:ajax event="rowSelect" listener="#{guzergahBean.dataTableSecimi}" update=":form:tabView:guzergahPanel" />
+                                        <p:column headerText="GÜZERGAH NO">
+                                            <h:outputText value="#{guzergah.guzergahNo}" />
+                                        </p:column>
+
+                                        <p:column headerText="GÜZERGAH ADI">
+                                            <h:outputText value="#{guzergah.guzergahAd}" />
+                                        </p:column>                                                                                                          
+                                    </p:dataTable>
+                                </p:panel> 
+                            </p:tab>
+                            <!--************ SEFER **************-->
+                            <p:tab id="sefer" title="Sefer">
+                                <p:panel id="seferPanel">                                
+                                    <f:facet name="header" >
+                                        <h:outputText value="Seferler" style="float: left;  font-size: small;" />
+                                        <p:commandButton value="Sefer Sil"  style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:commandButton value="Sefer değiştir" style="margin-left: 5px; width: 150px;float: right;" />
+                                        <p:inputText value="#{seferBean.seferNo}" placeholder="Sefer Kodu" style="width: 150px; margin-left: 5px; float: right;" />
+                                        <p:commandButton value="Sefer Ayarla" oncomplete="PF('seferEkleDialog').show()" style="margin-left: 5px; width: 150px;float: right;"/>
+                                    </f:facet>
+                                    <p:dataTable id="seferListe" var="sefer" value="#{seferBean.seferListesi}" rowKey="#{sefer.seferNo}" selectionMode="single">
+                                        <p:ajax event="rowSelect" listener="#{seferBean.dataTableSecimi}" update=":form:tabView:seferPanel" />
+                                        <p:column headerText="SEFER KODU">
+                                            <h:outputText value="#{sefer.seferNo}" />
+                                        </p:column>
+
+                                        <p:column headerText="SEFER ADI">
+                                            <h:outputText value="#{sefer.seferAd}" />
+                                        </p:column>                                                                                                          
+                                    </p:dataTable>
+                                </p:panel> 
+                            </p:tab>                          
+                        </p:tabView>
+                    </p:panel>
+                </div>
+            </div>
+        </h:form>
+        <h:form id="guzergahGoster" >
+            
+            <p:dialog id="guzergahHarita" widgetVar="guzergahGoster" >
+                <h:form prependId="false">
+                    <p:gmap id="gmapGoster" center="#{guzergahBean.simdikiKonumX},#{guzergahBean.simdikiKonumY}" zoom="#{guzergahBean.simdikiZoom}" type="HYBRID" 
+                            model="#{guzergahBean.guzergahGosterModel}" style="width: 955px;height:545px;">
+                    </p:gmap> 
+                </h:form>
+            </p:dialog>
+        </h:form>
+
+        <h:form id="personelEkle" >
+            <!-- ***************PERSONEL EKLE DIOLOG***********-->
+            <p:dialog widgetVar="personelEkleDialog" header="Personel Ekle" modal="true" width="420" height="340" >              
+                <p:wizard id="personelWizard" widgetVar="personelWizard" nextLabel="İleri" backLabel="Geri"  >
+                    <p:tab id="tab0" title="Kişisel Bilgiler" titleStyle="font-size: small;"  >
+                        <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                            <h:outputText value="TC NO :" />
+                            <p:inputText value="#{personelBean.personelTc}" placeholder="TC NO" style="width: 160px; margin-left: 5px;"/>  
+                            <h:outputText value="ADI :" />
+                            <p:inputText value="#{personelBean.personelAdi}" placeholder="ADI" style="width: 160px; margin-left: 5px;"/> 
+                            <h:outputText value="SOYADI :" />
+                            <p:inputText value="#{personelBean.personelSoyadi}" placeholder="SOYADI" style="width: 160px; margin-left: 5px;" /> 
+                            <h:outputText value="TELEFON :" />
+                            <p:inputMask value="#{personelBean.telefon}"  mask="0(999) 999 9999" style="width: 160px;margin-left: 5px;"/> 
+                            <h:outputText value="E-POSTA :" />
+                            <p:inputText value="#{personelBean.mail}" placeholder="E-POSTA" style="width: 160px; margin-left: 5px;"  validatorMessage="E-Posta adresinizi doğru birşekilde giriniz!" >
+                            </p:inputText> 
+                            <h:outputText value="CİNSİYET :" />
+                            <p:selectOneMenu value="#{personelBean.cinsiyet}" style="width: 168px; margin-left: 5px;">
+                                <f:selectItem  itemLabel="Seçiniz." />
+                                <f:selectItem itemValue="1" itemLabel="Erkek" />
+                                <f:selectItem itemValue="2" itemLabel="Kadın" />                                    
+                            </p:selectOneMenu> 
+                            <br/><br/><br/>
+                        </h:panelGrid>
+                    </p:tab >
+                    <p:tab title="Adres Bilgileri" titleStyle="font-size: small;"  >
+                        <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                            <h:outputText value="İL :" />
+                            <p:inputText value="#{personelBean.il}" placeholder="İL" style="width: 160px;"/>  
+                            <h:outputText value="İLÇE :" />
+                            <p:inputText value="#{personelBean.ilce}" placeholder="İLÇE" style="width: 160px;"/> 
+                            <h:outputText value="MAHALLE :" />
+                            <p:inputText value="#{personelBean.mahalle}" placeholder="MAHALLE" style="width: 160px;" /> 
+                            <h:outputText value="SOKAK :" />
+                            <p:inputText value="#{personelBean.sokak}" placeholder="SOKAK" style="width: 160px;" />
+                            <h:outputText value="CADDE :" />
+                            <p:inputText value="#{personelBean.cadde}" placeholder="CADDE" style="width: 160px;" />
+                            <h:outputText value="APARTMAN:" />
+                            <p:inputText value="#{personelBean.apartman}" placeholder="APARTMAN" style="width: 160px;" />
+                            <h:outputText value="DAİRE :" />
+                            <p:inputText value="#{personelBean.daireNo}" placeholder="DAİRE" style="width: 160px;" />                                   
+                        </h:panelGrid>
+                        <br/><br/>
+                    </p:tab>
+                    <p:tab title="Durak-Arac Bilgileri" titleStyle="font-size: small;">
+                        <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                            <h:outputText value="Durak Seç :" />
+                            <h:panelGrid columns="2" cellpadding="0" cellspacing="0">
+                                <p:inputText id="durakNo" value="#{personelBean.durakNo}"  style="width: 105px; margin-left: 5px; "/>
+                                <p:commandButton value="Seç" onclick="PF('personelDuraklari').show();" update=":personelDuraklari:gmap1" actionListener="#{personelBean.durakNoktalariYukle()}" style="width: 50px; "/>
+                            </h:panelGrid>
+                            <h:outputText value="Araç Seç :" />
+                            <h:panelGrid columns="2" cellpadding="0" cellspacing="0">
+                                <p:inputText id="aracNo" value="#{personelBean.aracNo}"  style="width: 105px; margin-left: 5px; "/>
+                                <p:commandButton value="Seç" oncomplete="PF('aracSec1').show();" actionListener="#{personelBean.aaracListesi()}" update=":aracSec1"  style="width: 50px; "/>
+                            </h:panelGrid>
+                            <p:outputLabel value="Saati :" />
+                            <h:panelGrid id="saati" columns="3">
+                                <p:selectOneMenu value="#{personelBean.hours}" style="margin-left: 5px; width: 60px;">                                
+                                    <f:selectItem itemValue="01" itemLabel="01"/>
+                                    <f:selectItem itemValue="02" itemLabel="02"/>
+                                    <f:selectItem itemValue="03" itemLabel="03"/>
+                                    <f:selectItem itemValue="04" itemLabel="04"/>
+                                    <f:selectItem itemValue="05" itemLabel="05"/>
+                                    <f:selectItem itemValue="06" itemLabel="06"/>
+                                    <f:selectItem itemValue="07" itemLabel="07"/>
+                                    <f:selectItem itemValue="08" itemLabel="08"/>
+                                    <f:selectItem itemValue="09" itemLabel="09"/> 
+                                    <f:selectItems value="#{seferBean.saatler}" />
+                                    <f:selectItem itemValue="09" itemLabel="09"/>
+                                </p:selectOneMenu>
+                                <h:outputText value=":"/>
+                                <p:selectOneMenu value="#{personelBean.minutes}">
+                                    <f:selectItem itemValue="00" itemLabel="00"/>
+                                    <f:selectItem itemValue="01" itemLabel="01"/>
+                                    <f:selectItem itemValue="02" itemLabel="02"/>
+                                    <f:selectItem itemValue="03" itemLabel="03"/>
+                                    <f:selectItem itemValue="04" itemLabel="04"/>
+                                    <f:selectItem itemValue="05" itemLabel="05"/>
+                                    <f:selectItem itemValue="06" itemLabel="06"/>
+                                    <f:selectItem itemValue="07" itemLabel="07"/>
+                                    <f:selectItem itemValue="08" itemLabel="08"/>
+                                    <f:selectItem itemValue="09" itemLabel="09"/>
+                                    <f:selectItems value="#{seferBean.dakikalar}" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>                       
+                            <h:outputText value="Başlama Tarihi :" />
+                            <p:calendar  pattern="yyyy-MM-dd" locale="tr" style="width: 140px; margin-left: 5px; "/>
+                            <h:outputText value="Bitiş Tarihi :"  />
+                            <p:calendar  pattern="dd-MM-yyyy" locale="tr" style="width: 140px; margin-left: 5px; "/>
+                        </h:panelGrid>
+                        <p:commandButton value="KAYDET" actionListener="#{personelBean.personelEkle()}"   disabled="#{seferBean.butonDurumEkle}" onclick="PF('ekleDialog').hide();"   update=":form:tabView:personelPanel" style="width: 160px; margin-left: 160px; margin-top: 5px;" />
+                        <p:commandButton  value="DÜZENLE" onclick="PF('ekleDialog').hide();" actionListener="#{personelBean.personelDuzenle()}" disabled="#{seferBean.butonDurumDuzenle}" update=":form:tabView:personelPanel" style="width: 160px; margin-left: 160px; margin-top: 5px;" />
+                        <br/><br/><br/><br/><br/><br/>
+                    </p:tab>
+                </p:wizard>  
+            </p:dialog>                   
+        </h:form>         
+        <h:form id="personelDuraklari">
+            <p:dialog widgetVar="personelDuraklari" >
+                <h:panelGrid columns="1" cellpadding="0" cellspacing="0">                   
+                    <p:gmap id="gmap1" center="#{personelBean.simdikiKonumX},#{personelBean.simdikiKonumY}" zoom="15" type="HYBRID" 
+                            model="#{personelBean.personelDurakModel}" style="width:955px;height:545px;"> 
+                        <p:ajax event="overlaySelect" listener="#{personelBean.onMarkerSelect}" oncomplete="personelEkleme();" update=":personelEkle:durakNo"/>
+                    </p:gmap> 
+                </h:panelGrid>
+            </p:dialog>
+        </h:form>
+        <h:form id="aracEkle">
+            <!-- ***************ARAÇ EKLE DIALOG *************-->
+            <p:dialog widgetVar="aracEkleDialog" header="Arac Ekle" modal="true" width="480" height="270" >              
+                <p:wizard widgetVar="wizardAracEkle" nextLabel="İleri" backLabel="Geri"  >
+                    <p:tab title="Araç Bilgileri" titleStyle="font-size: small;"  >
+                        <p:messages autoUpdate="true"/>
+                        <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                            <p:outputLabel value="Arac No: " />
+                            <p:inputText value="#{aracBean.aracNo}" placeholder="ARAÇ NO"   style="width: 160px;"/>
+                            <p:outputLabel value="Plaka : " />
+                            <p:inputText value="#{aracBean.plaka}" placeholder="PLAKA" style="width: 160px;" />
+                            <p:outputLabel value="Marka : " />
+                            <p:inputText value="#{aracBean.marka}" placeholder="MARKA" style="width: 160px;"/>
+                            <p:outputLabel value="Model : " />
+                            <p:inputText value="#{aracBean.model}" validatorMessage="Araç en az 1990 model olabilir!" style="width: 160px;">
+                                <f:validateDoubleRange minimum="1990" />
+                            </p:inputText>
+                            <p:outputLabel value="Kapasite: " />
+                            <p:inputText value="#{aracBean.kapasite}" placeholder="KAPASİTE" style="width: 160px;" />          
+                            <br/><br/><br/>
+                        </h:panelGrid>
+                    </p:tab >
+                    <p:tab title="Sahip Bilgileri" titleStyle="font-size: small;"  >
+                        <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                            <p:outputLabel value="TC No : " />
+                            <p:inputText placeholder="TC NO" style="width: 160px;"/>
+                            <p:outputLabel value="ADI : " />
+                            <p:inputText placeholder="ADI" style="width: 160px;"/>
+                            <p:outputLabel value="SOYADI : " />
+                            <p:inputText placeholder="SOYADI" style="width: 160px;"/>
+                            <p:outputLabel value="TELEFON 1: " />
+                            <p:inputMask placeholder="TELEFON" mask="0(999) 999 99 99" style="width: 160px;"/>
+                            <p:outputLabel value="TELEFON 2: " />
+                            <p:inputMask placeholder="TELEFON" mask="0(999) 999 99 99" style="width: 160px;"/>                                 
+                        </h:panelGrid>
+                        <p:commandButton value="KAYDET" actionListener="#{aracBean.aracEkle}" disabled="#{seferBean.butonDurumEkle}" update=":form:tabView:aracPanel"  onclick="PF('aracEkleDialog').hide();" style="width: 170px; margin-left: 178px; margin-top: 5px;" />
+                        <p:commandButton  value="DÜZENLE" onclick="PF('aracEkleDialog').hide();" disabled="#{seferBean.butonDurumDuzenle}" update=":form:tabView:aracPanel" style="width: 170px; margin-left: 178px; margin-top: 5px;" />
+                        <br/><br/>
+                    </p:tab>
+                </p:wizard>               
+            </p:dialog>
+        </h:form>
+        <!--************** DURAK EKLE DIALOG **************-->
+        <h:form id="durakEkle">
+            <p:dialog widgetVar="durakEkleDialog" header="Durak Ekle" modal="true" width="480" height="270" >            
+                <p:tab title="Durak Bilgileri" titleStyle="font-size: small;"  >
+                    <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                        <p:outputLabel value="Durak No: " />
+                        <p:inputText value="#{durakBean.durakNo}" placeholder="DURAK NO"   style="width: 160px;"/>
+                        <p:outputLabel value="Durak Adı : " />
+                        <p:inputText value="#{durakBean.durakAdi}" placeholder="DURAK ADI" style="width: 160px;" />
+                        <p:outputLabel value="Açıklama : " />
+                        <p:inputTextarea value="#{durakBean.aciklama}" placeholder="AÇIKLAMA" style="width: 160px;"/>
+                    </h:panelGrid>
+                    <p:outputLabel value="Konum seçmek için " style="margin-left: 180px;"/>
+                    <p:commandLink value="tıklayınız." onclick="PF('gmapDurakEkleDialog').show();" style="color:  darkblue;"/>
+                    <h:panelGrid id="konumlar" columns="2" style="margin-left: auto; margin-right: auto;" >
+                        <p:outputLabel value="Konum X : " />
+                        <p:inputText value="#{durakBean.konumX}" disabled="true" placeholder="KONUM X" style="width: 160px;"/>
+                        <p:outputLabel value="Konum Y " />
+                        <p:inputText value="#{durakBean.konumY}" disabled="true" placeholder="KONUM Y" style="width: 160px;" />     
+                    </h:panelGrid>
+                    <p:commandButton value="KAYDET" actionListener="#{durakBean.durakEkle()}" disabled="#{seferBean.butonDurumEkle}" update=":form:tabView:durakPanel" onclick="PF('durakEkleDialog').hide();" style="width: 170px; margin-left: 178px; margin-top: 5px;" />
+                    <p:commandButton  value="DÜZENLE" onclick="PF('durakEkleDialog').hide();" disabled="#{seferBean.butonDurumDuzenle}" update=":form:tabView:durakPanel" style="width: 170px; margin-left: 178px; margin-top: 5px;" />
+                </p:tab >                
+            </p:dialog>          
+        </h:form>
+        <!--********************  DURAK EKLE *****************************-->
+        <h:form id="gmapDurakEkle">
+            <p:dialog id="gmapDurakEkleDialog" widgetVar="gmapDurakEkleDialog" width="1200" height="650" modal="true">
+                <p:commandButton value="Tamam" onclick="PF('gmapDurakEkleDialog').hide();" update=":durakEkle:konumlar" />
+                <p:gmap id="gmap" center="38.70349658219017,35.522446632385254" zoom="15" type="HYBRID" style="width:100%;height:600px;"
+                        model="#{durakBean.emptyModel}" onPointClick="handlePointClick(event);" widgetVar="map" />  
+            </p:dialog>
+        </h:form>        
+        <p:dialog widgetVar="dlg" showEffect="fade">
+            <h:form prependId="false">
+                <h:panelGrid columns="2"> 
+                    <f:facet name="footer">
+                        <p:commandButton value="Ekle" actionListener="#{durakBean.addMarker()}"  oncomplete="markerAddComplete()" />
+                        <p:commandButton value="Vazgeç" onclick="return cancel()" />
+                    </f:facet>
+                </h:panelGrid>
+
+                <h:inputHidden id="lat" value="#{durakBean.konumX}" />
+                <h:inputHidden id="lng" value="#{durakBean.konumY}" />
+            </h:form>
+        </p:dialog>
+        <h:form id="durakGoster">
+            <p:dialog widgetVar="durakGoster" width="1200" height="650" modal="true" >
+                <p:gmap id="gmapDurakGoster" center="#{durakBean.konumX},#{durakBean.konumY}" zoom="17" type="HYBRID"
+                        style="width:100%;height:600px;" model="#{durakBean.durakGoster}" />
+            </p:dialog>
+        </h:form>
+        <!--******************GÜZERGAH EKLE*******************-->
+        <h:form id="guzergahEkle" >            
+            <p:dialog id="guzergahEkleDialog" widgetVar="guzergahEkleDialog" width="1300" height="600" >
+                <p:growl id="growl" />
+                <h:panelGrid columns="2" cellpadding="0" cellspacing="0" >                   
+                    <h:panelGrid columns="1">
+                        <h:panelGrid columns="4" style="margin-top: 0; float: right;">
+                            <p:inputText value="#{guzergahBean.guzergahNo}" placeholder="GÜZERGAH NO " required="true" requiredMessage="Boş bırakılamaz!"/>
+                            <p:inputText value="#{guzergahBean.guzergahAdi}" placeholder="GÜZERGAH ADI" />
+                            <h:outputText value="NOT: Güzergaha eklemek iztediğiniz konumlar seçiniz..." />                            
+                            <h:panelGrid columns="2" style="float: right;">
+                                <p:commandButton value="Geri Al" actionListener="#{guzergahBean.geriAl}" update=":guzergahEkle:gmap" icon="fa fa-rotate-left" style=" width: 150px; height: 28px;"/>
+                                <p:commandButton value="Bitir" update=":guzergahEkle:guzergahDuraklari :guzergahEkle:butonKaydet" actionListener="#{guzergahBean.butonDurumFalseYap()}" icon="fa fa-check" style=" width: 150px; height: 28px;"/>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <h:panelGrid columns="1" cellpadding="0" cellspacing="0">
+                            <p:gmap id="gmap" center="#{guzergahBean.simdikiKonumX},#{guzergahBean.simdikiKonumY}" zoom="#{guzergahBean.simdikiZoom}" type="HYBRID" 
+                                    model="#{guzergahBean.guzergahEkleModel}" style="width: 955px;height:545px;">
+                                <p:ajax event="overlaySelect" listener="#{guzergahBean.onMarkerSelect}" update=":guzergahEkle:gmap :guzergahEkle:growl " />
+                                <p:ajax event="stateChange" listener="#{guzergahBean.onStateChange}" update=":guzergahEkle:gmap" />
+                                <p:ajax event="pointSelect" listener="#{guzergahBean.onPointSelect}" update=":guzergahEkle:gmap" />
+                            </p:gmap> 
+                        </h:panelGrid>
+                    </h:panelGrid>    
+                    <h:panelGrid columns="1" cellpadding="0" cellspacing="0">
+                        <p:dataTable id="guzergahDuraklari" var="guzergahDuraklari" value="#{guzergahBean.duraklar}"
+                                     selectionMode="single" rowKey="#{guzergahDuraklari.durakNo}" scrollable="true" scrollHeight="550" 
+                                     style="width: 300px; height: 550px; margin-left: 5px;" >
+                            <f:facet name="header" >
+                                DURAKLAR
+                            </f:facet>
+                            <p:column headerText="DURAK NO">
+                                <h:outputText value="#{guzergahDuraklari.durakNo}"  />
+                            </p:column>
+                            <p:column headerText="DURAK ADI" >
+                                <h:outputText value="#{guzergahDuraklari.durakAd}" />
+                            </p:column>
+                        </p:dataTable>
+                        <p:commandButton id="butonKaydet" value="Kaydet" disabled="#{guzergahBean.durumButon}" actionListener="#{guzergahBean.guzergahEkle()}" update=":form:tabView:guzergahPanel :seferEkle" oncomplete="PF('guzergahEkleDialog').hide();" style="width: 300px; margin-left: 5px;" />
+                        <p:commandButton id="butonDuzenle" value="Düzenle" disabled="#{seferBean.butonDurumDuzenle}" oncomplete="PF('guzergahEkleDialog').hide();" style="width: 300px; margin-left: 5px;" />
+                    </h:panelGrid>
+                </h:panelGrid>
+            </p:dialog>
+        </h:form>
+        <!--*********** SEFER EKLE*********-->
+        <h:form id="seferEkle">
+            <p:dialog widgetVar="seferEkleDialog" header="Sefer Ayarla" modal="true" width="600" height="270" >             
+                <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                    <h:panelGrid columns="2" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                        <p:outputLabel value="Sefer No: " />
+                        <p:inputText value="#{seferBean.seferNo}" placeholder="SEFER NO"   style="width: 160px;"/>
+                        <p:outputLabel value="Sefer Adı : " />
+                        <p:inputText value="#{seferBean.seferAd}" placeholder="SEFER ADI" style="width: 160px;" />
+                        <p:outputLabel value="Başlangıç tarihi : " />
+                        <p:calendar value="#{seferBean.basTarih}"  style="width: 160px;"/>
+                        <p:outputLabel value="Bitiş tarihi : " />
+                        <p:calendar value="#{seferBean.bitTarih}" style="width: 160px;" disabled="true"/>
+                        <p:outputLabel value="Saati :" />
+                        <h:panelGrid columns="3">
+                            <p:selectOneMenu value="#{seferBean.seferSaat}">                                
+                                <f:selectItem itemValue="01" itemLabel="01"/>
+                                <f:selectItem itemValue="02" itemLabel="02"/>
+                                <f:selectItem itemValue="03" itemLabel="03"/>
+                                <f:selectItem itemValue="04" itemLabel="04"/>
+                                <f:selectItem itemValue="05" itemLabel="05"/>
+                                <f:selectItem itemValue="06" itemLabel="06"/>
+                                <f:selectItem itemValue="07" itemLabel="07"/>
+                                <f:selectItem itemValue="08" itemLabel="08"/>
+                                <f:selectItem itemValue="09" itemLabel="09"/> 
+                                <f:selectItems value="#{seferBean.saatler}" />
+                                <f:selectItem itemValue="09" itemLabel="09"/>
+                            </p:selectOneMenu>
+                            <h:outputText value=":"/>
+                            <p:selectOneMenu value="#{seferBean.seferDakika}">
+                                <f:selectItem itemValue="00" itemLabel="00"/>
+                                <f:selectItem itemValue="01" itemLabel="01"/>
+                                <f:selectItem itemValue="02" itemLabel="02"/>
+                                <f:selectItem itemValue="03" itemLabel="03"/>
+                                <f:selectItem itemValue="04" itemLabel="04"/>
+                                <f:selectItem itemValue="05" itemLabel="05"/>
+                                <f:selectItem itemValue="06" itemLabel="06"/>
+                                <f:selectItem itemValue="07" itemLabel="07"/>
+                                <f:selectItem itemValue="08" itemLabel="08"/>
+                                <f:selectItem itemValue="09" itemLabel="09"/>
+                                <f:selectItems value="#{seferBean.dakikalar}" />
+                            </p:selectOneMenu>
+                        </h:panelGrid>                       
+                    </h:panelGrid> 
+                    <h:panelGrid columns="1" style="margin-top: 20px; margin-left: auto; margin-right: auto;" >
+                        <p:outputLabel value="Güzergah Seç: " />
+                        <p:selectOneMenu value="#{seferBean.guzergahNo}"  style="width: 180px;">
+                            <f:selectItem  itemValue="0" itemLabel="Seçiniz" />
+                            <f:selectItems value="#{seferBean.guzergahListesi}" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Araç Seç: " />
+                        <p:inputText id="aracNo" value="#{seferBean.aracNo}" onclick="PF('aracSec').show()" style="width: 170px;" />
+                        <p:commandButton value="Kaydet" actionListener="#{seferBean.seferEkle()}" oncomplete="PF('seferEkleDialog').hide()" update=":form:tabView:seferPanel :aracSec1" style="width: 180px;"/>                        
+                    </h:panelGrid>
+                </h:panelGrid>                                   
+            </p:dialog>          
+        </h:form>
+        <h:form id="aracSec">
+            <p:dialog widgetVar="aracSec" header="Araç Seç" modal="true" width="600" height="270" >
+                <p:panel id="aracPanel1" >                                   
+                    <f:facet name="header" >
+                        <h:outputText value="Araç Listesi" style="float: left;  font-size: small;" />
+                        <p:commandButton value="Seç" update=":seferEkle:aracNo" onclick="PF('aracSec').hide()" oncomplete="PF('seferEkleDialog').show()" style="margin-left: 5px; width: 150px;float: right;" />
+                        <p:inputText value="#{seferBean.aracNo}"  placeholder="Araç No" style="width: 150px; margin-left: 5px; float: right;" />                                       
+                    </f:facet>
+                    <p:dataTable id="aracListe1" var="arac" value="#{aracBean.aracListesi}" selectionMode="single" rowKey="#{arac.aracNo}"  >
+                        <p:ajax event="rowSelect" listener="#{seferBean.dataTableSecimiaracSec}" update=":aracSec:aracPanel1"/>
+                        <p:column headerText="ARAÇ NO">
+                            <h:outputText value="#{arac.aracNo}" />
+                        </p:column>
+                        <p:column headerText="PLAKA">
+                            <h:outputText value="#{arac.plaka}" />
+                        </p:column>
+                        <p:column headerText="MARKA">
+                            <h:outputText value="#{arac.marka}" />
+                        </p:column>
+                        <p:column headerText="MODEL">
+                            <h:outputText value="#{arac.model}" />
+                        </p:column>
+                        <p:column headerText="KAPASİTE">
+                            <h:outputText value="#{arac.kapasite}" />
+                        </p:column>
+                        <p:column headerText="SINIF">
+                            <h:outputText value="#{arac.sinif}" />
+                        </p:column>                                   
+                    </p:dataTable>
+                </p:panel> 
+            </p:dialog>
+        </h:form>
+        <h:form id="aracSec1">
+            <p:dialog widgetVar="aracSec1" header="Araç Seç" modal="true" width="600" height="270" >
+                <p:panel id="aracPanel2" >                                   
+                    <f:facet name="header" >
+                        <h:outputText value="Araç Listesi" style="float: left;  font-size: small;" />
+                        <p:commandButton value="Seç" update=":personelEkle:aracNo :personelEkle:saati" actionListener="#{personelBean.setSaat()}" oncomplete="PF('aracSec1').hide()" onsuccess="PF('personelEkleDialog').show()" style="margin-left: 5px; width: 150px;float: right;" />
+                        <p:inputText value="#{personelBean.aracNo}"  placeholder="Araç No" style="width: 150px; margin-left: 5px; float: right;" />                                       
+                    </f:facet>
+                    <p:dataTable id="aracListe2" var="arac" value="#{personelBean.araclar}" selectionMode="single" rowKey="#{arac.aracNo}"  >
+                        <p:ajax event="rowSelect" listener="#{personelBean.dataTableSecimiAracSec}" update=":aracSec1:aracPanel2"/>
+                        <p:column headerText="ARAÇ NO">
+                            <h:outputText value="#{arac.aracNo}" />
+                        </p:column>
+                        <p:column headerText="PLAKA">
+                            <h:outputText value="#{arac.plaka}" />
+                        </p:column>
+                        <p:column headerText="MARKA">
+                            <h:outputText value="#{arac.marka}" />
+                        </p:column>
+                        <p:column headerText="MODEL">
+                            <h:outputText value="#{arac.model}" />
+                        </p:column>
+                        <p:column headerText="KAPASİTE">
+                            <h:outputText value="#{arac.kapasite}" />
+                        </p:column>
+                        <p:column headerText="SINIF">
+                            <h:outputText value="#{arac.sinif}" />
+                        </p:column>                                   
+                    </p:dataTable>
+                </p:panel> 
+            </p:dialog>
+        </h:form>
+    </h:body>
+</html>
+
+
